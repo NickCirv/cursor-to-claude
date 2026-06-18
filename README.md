@@ -1,43 +1,19 @@
-![cursor-to-claude](./banner.svg)
+![cursor-to-claude — migrate Cursor, Copilot, Windsurf, or Cline config to Claude Code in one command](assets/banner.png)
 
-# cursor-to-claude
+<div align="center">
 
-> The great migration. One command.
+**Your months of tuned rules, ignore patterns, and project context — moved to Claude Code in one command.**
 
-[![npm version](https://img.shields.io/npm/v/cursor-to-claude?color=%23FB7185&label=npm)](https://www.npmjs.com/package/cursor-to-claude)
-[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/NickCirv/cursor-to-claude?style=flat)](https://github.com/NickCirv/cursor-to-claude/stargazers)
+![license](https://img.shields.io/badge/license-MIT-blue?labelColor=0B0A09)
+![node](https://img.shields.io/badge/node-%3E%3D18-brightgreen?labelColor=0B0A09)
+![sources](https://img.shields.io/badge/source%20tools-4-8B92F6?labelColor=0B0A09)
+![no api key](https://img.shields.io/badge/API%20key-none%20required-brightgreen?labelColor=0B0A09)
 
----
-
-## The Problem
-
-You've got `.cursorrules`. Or `copilot-instructions.md`. Or `.windsurfrules`. You want to try Claude Code but you don't want to lose your setup — the rules you've spent months tuning, the ignore patterns, the project context. One command. Done.
+</div>
 
 ---
 
-## Quick Start
-
-```bash
-npx cursor-to-claude
-```
-
-No API key. No account. Pure file parsing. Run it in any project directory.
-
-```bash
-# Preview what will be created (dry run)
-npx cursor-to-claude --dry-run
-
-# Migrate a specific project
-npx cursor-to-claude /path/to/project
-
-# Skip confirmation prompt
-npx cursor-to-claude --yes
-```
-
----
-
-## Example Output
+You've got `.cursorrules`. Or `copilot-instructions.md`. Or `.windsurfrules`. You want to try Claude Code but you don't want to lose your setup — the rules you've spent months tuning, the ignore patterns, the project context. `cursor-to-claude` scans your project, parses every known AI tool config, and writes a proper Claude Code structure: `CLAUDE.md` + `.claude/rules/` + `.claude/settings.json`.
 
 ```
 cursor-to-claude — AI config migrator
@@ -64,26 +40,58 @@ Creating Claude Code config...
 Done. Run `claude` to open Claude Code — your setup is live.
 ```
 
----
+## Install
 
-## Features
+No npm account needed — runs straight from GitHub:
 
-- Migrates `.cursorrules`, `.cursorignore`, `.cursor/rules/`, `copilot-instructions.md`, `.windsurfrules`, `.clinerules`, and `cline_docs/`
-- Concept-level translation — "always use TypeScript" becomes a proper CLAUDE.md instruction, generic filler gets stripped
-- `.cursorignore` becomes `ignorePaths` in `.claude/settings.json`
-- Dry run mode — preview everything before writing a single file
-- Diff mode — see the generated content before committing
-- No API key, no Anthropic account, no network calls
+```bash
+npx github:NickCirv/cursor-to-claude
+```
 
----
+## Usage
 
-## What Gets Created
+```bash
+# Migrate the current directory
+npx github:NickCirv/cursor-to-claude
+
+# Preview what will be created — no files written
+npx github:NickCirv/cursor-to-claude --dry-run
+
+# Show generated CLAUDE.md content before committing
+npx github:NickCirv/cursor-to-claude --diff
+
+# Migrate a specific project directory
+npx github:NickCirv/cursor-to-claude /path/to/project
+
+# Skip the confirmation prompt
+npx github:NickCirv/cursor-to-claude --yes
+```
+
+| Flag | Description |
+|------|-------------|
+| `[dir]` | Project directory to migrate (default: current directory) |
+| `--dry-run` | Show what would be created without writing any files |
+| `--diff` | Show a preview of the generated CLAUDE.md content (implies `--dry-run`) |
+| `--yes` | Skip the confirmation prompt and migrate immediately |
+
+## What gets migrated
+
+| Source | Config files detected |
+|--------|-----------------------|
+| **Cursor** | `.cursorrules`, `.cursorignore`, `.cursor/rules/` |
+| **GitHub Copilot** | `.github/copilot-instructions.md` |
+| **Windsurf** | `.windsurfrules` |
+| **Cline** | `.clinerules`, `cline_docs/` |
+
+Each source is parsed, stripped of generic filler, and written as a separate rules file so you keep granular control per concern.
+
+## What gets created
 
 ```
 your-project/
-├── CLAUDE.md                        # Main instructions for Claude Code
+├── CLAUDE.md                        # Main instructions — read every Claude Code session
 └── .claude/
-    ├── settings.json                # Ignore paths, permissions
+    ├── settings.json                # Ignore paths from .cursorignore → ignorePaths
     └── rules/
         ├── cursor-migrated.md       # Rules from .cursorrules
         ├── copilot-migrated.md      # Copilot instructions
@@ -91,75 +99,33 @@ your-project/
         └── cline-context.md         # Cline project docs
 ```
 
-`CLAUDE.md` is the primary file — Claude Code reads it at the start of every session. The `rules/` files load automatically and give you granular control per concern.
+If `CLAUDE.md` or `.claude/settings.json` already exist, they are updated — not replaced.
 
----
-
-## How It Works
-
-1. **Detect** — scans the target directory for all known AI tool config files
-2. **Parse** — reads each file, extracts meaningful instructions (strips generic filler)
-3. **Map** — applies concept-level translations (ignore paths → `ignorePaths`, rule sets → `rules/*.md`)
-4. **Write** — outputs `CLAUDE.md` and `.claude/` structure with a summary of what was created
-
----
-
-## Why We Switched
-
-If you're coming from Cursor or Copilot, here's what changes:
+## Why Claude Code is different
 
 | Cursor / Copilot | Claude Code |
 |------------------|-------------|
-| Tab completion with context | Reads the entire codebase, reasons about it |
+| Tab completion with local context | Reads the entire codebase, reasons about it |
 | Sidebar chat | Agentic — runs commands, edits files, tests code |
 | Per-file context | Project-wide context with memory |
 | Rules file applied passively | CLAUDE.md actively guides every session |
 | Autocomplete-first | Reasoning-first |
 
-The mental model shift: you're not correcting autocomplete anymore. You're working with an engineer who has read all your code.
+The mental model shift: you're not correcting autocomplete. You're working with an engineer who has read all your code.
 
----
+## What it is NOT
 
-## Claude Code Config in 60 Seconds
-
-**CLAUDE.md** — your main instruction file. Lives in project root. Gets read every session.
-
-```markdown
-## Code Style
-- TypeScript everywhere, no `any`
-- Functional React components only
-- Zod for input validation at all boundaries
-
-## Testing
-- Write tests for all new code
-- Jest + Testing Library
-```
-
-**.claude/rules/*.md** — modular rule sets loaded automatically. Separate concerns: `coding-style.md`, `testing.md`, `security.md`.
-
----
+- **Not a syntax converter.** It does a best-effort concept-level mapping — you should review the output `CLAUDE.md` and trim anything that doesn't make sense in Claude Code's model.
+- **Not a network tool.** No API calls, no Anthropic account, no telemetry. Pure local file parsing.
+- **Not a one-way street.** Your original config files are left untouched. Running the migration again with `--dry-run` shows any drift.
 
 ## Requirements
 
 - Node.js 18+
-- A project with at least one of: `.cursorrules`, `.cursorignore`, `.github/copilot-instructions.md`, `.windsurfrules`, `.clinerules`, `cline_docs/`
-
-No API key required. No Anthropic account needed.
+- A project with at least one of: `.cursorrules`, `.cursorignore`, `.cursor/rules/`, `.github/copilot-instructions.md`, `.windsurfrules`, `.clinerules`, `cline_docs/`
 
 ---
 
-## See Also
-
-- [ghost-mode](https://github.com/NickCirv/ghost-mode) — keep sensitive files out of Claude's context automatically
-- [ai-code-roast](https://github.com/NickCirv/ai-code-roast) — get brutally honest feedback on your codebase
-- [readme-surgeon](https://github.com/NickCirv/readme-surgeon) — brutal README feedback + auto-fix
-
----
-
-## License
-
-MIT — [NickCirv](https://github.com/NickCirv)
-
----
-
-*Built by someone who made the switch and never looked back.*
+<div align="center">
+<sub>Node 18+ · MIT · by <a href="https://github.com/NickCirv">NickCirv</a></sub>
+</div>
